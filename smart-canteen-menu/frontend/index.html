@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Canteen Menu & Live Pickup Portal</title>
+  <meta name="description" content="Official college smart canteen menu, digital token ordering, live kitchen queue, and counter pickup system.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ========================================================================= -->
+  <!-- TOP NAVIGATION BAR -->
+  <!-- ========================================================================= -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="brand-logo" id="brand-home-btn">
+        <div class="brand-icon-wrap">
+          <i data-lucide="utensils" class="brand-icon"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Campus<span class="brand-accent">Bite</span></span>
+          <span class="brand-tagline">Smart Canteen Portal</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Tabs -->
+      <nav class="nav-links" id="main-nav">
+        <button class="nav-btn active" data-tab="menu-view" id="tab-menu-btn">
+          <i data-lucide="book-open"></i>
+          <span>Canteen Menu</span>
+        </button>
+        <button class="nav-btn" data-tab="token-board-view" id="tab-board-btn">
+          <i data-lucide="tv"></i>
+          <span>Live Token Board</span>
+          <span class="live-pulse-dot"></span>
+        </button>
+        <button class="nav-btn" data-tab="track-view" id="tab-track-btn">
+          <i data-lucide="search"></i>
+          <span>Track Order</span>
+        </button>
+        <button class="nav-btn staff-portal-btn" data-tab="admin-view" id="tab-admin-btn">
+          <i data-lucide="shield-check"></i>
+          <span>Staff Portal</span>
+        </button>
+      </nav>
+
+      <!-- Action Items: System Status & Cart Button -->
+      <div class="nav-actions">
+        <!-- Live System Connection Pill -->
+        <div class="system-pill" id="system-status-pill" title="Server & WebSocket Status">
+          <span class="status-indicator online" id="status-indicator"></span>
+          <span class="status-label" id="status-label">Live Sync</span>
+        </div>
+
+        <!-- Cart Trigger Button -->
+        <button class="cart-trigger-btn" id="open-cart-btn" aria-label="View Food Tray">
+          <div class="cart-icon-box">
+            <i data-lucide="shopping-bag"></i>
+            <span class="cart-badge" id="cart-badge-count">0</span>
+          </div>
+          <div class="cart-btn-details">
+            <span class="cart-label">Food Tray</span>
+            <span class="cart-total" id="nav-cart-total">₹0.00</span>
+          </div>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle Navigation">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-tray" id="mobile-nav-tray">
+      <button class="mobile-nav-link active" data-tab="menu-view">
+        <i data-lucide="book-open"></i> Canteen Menu
+      </button>
+      <button class="mobile-nav-link" data-tab="token-board-view">
+        <i data-lucide="tv"></i> Live Token Board
+      </button>
+      <button class="mobile-nav-link" data-tab="track-view">
+        <i data-lucide="search"></i> Track Order
+      </button>
+      <button class="mobile-nav-link" data-tab="admin-view">
+        <i data-lucide="shield-check"></i> Staff Portal
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN APPLICATION CONTAINER -->
+  <!-- ========================================================================= -->
+  <main class="app-main">
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- VIEW 1: CANTEEN MENU VIEW (DEFAULT) -->
+    <!-- --------------------------------------------------------------------- -->
+    <section class="tab-view active" id="menu-view">
+      
+      <!-- Hero Section -->
+      <section class="hero-banner">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <i data-lucide="zap"></i> Fast Counter Pickup &bull; Zero Queue
+          </div>
+          <h1 class="hero-title">Order Campus Food <br><span class="gradient-text">Fresh, Fast & Contactless</span></h1>
+          <p class="hero-subtitle">
+            Skip the lunchtime rush. Select your favorite meals, customize order details, and pick up directly from Counter 1 or 2 using your live digital token.
+          </p>
+          
+          <!-- Quick Status Metrics Bar -->
+          <div class="hero-metrics">
+            <div class="metric-card">
+              <span class="metric-value">~10 min</span>
+              <span class="metric-label">Avg Prep Time</span>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric-card">
+              <span class="metric-value" id="hero-active-count">12 Dishes</span>
+              <span class="metric-label">Available Today</span>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric-card">
+              <span class="metric-value" id="hero-now-serving">CAN-101</span>
+              <span class="metric-label">Now Serving</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filter & Search Controls Bar -->
+      <section class="controls-section">
+        <div class="controls-container">
+          
+          <!-- Search Input -->
+          <div class="search-box">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="menu-search-input" placeholder="Search by dish name, ingredients, snacks..." autocomplete="off">
+            <button class="clear-search-btn hidden" id="clear-search-btn" title="Clear search">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+
+          <!-- Quick Dietary Filter Buttons -->
+          <div class="dietary-filters">
+            <button class="diet-btn active" data-diet="all" id="diet-all-btn">All</button>
+            <button class="diet-btn" data-diet="veg" id="diet-veg-btn">
+              <span class="diet-dot veg"></span> Pure Veg
+            </button>
+            <button class="diet-btn" data-diet="non-veg" id="diet-nonveg-btn">
+              <span class="diet-dot non-veg"></span> Non-Veg
+            </button>
+            <button class="diet-btn" data-diet="budget" id="diet-budget-btn">
+              <i data-lucide="tag"></i> Under ₹50
+            </button>
+          </div>
+
+          <!-- Sort Select -->
+          <div class="sort-box">
+            <label for="sort-select"><i data-lucide="arrow-up-down"></i> Sort:</label>
+            <select id="sort-select">
+              <option value="featured">Featured / Default</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="prep-fast">Fastest Prep Time</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Category Pills Navigation -->
+        <div class="category-pills-bar">
+          <button class="category-pill active" data-category="All">
+            <i data-lucide="layout-grid"></i> All Categories
+          </button>
+          <button class="category-pill" data-category="Breakfast">
+            <i data-lucide="sun"></i> Breakfast
+          </button>
+          <button class="category-pill" data-category="Meals">
+            <i data-lucide="utensils-crossed"></i> Meals & Thalis
+          </button>
+          <button class="category-pill" data-category="Snacks">
+            <i data-lucide="sandwich"></i> Snacks & Bites
+          </button>
+          <button class="category-pill" data-category="Beverages">
+            <i data-lucide="coffee"></i> Beverages
+          </button>
+          <button class="category-pill" data-category="Healthy">
+            <i data-lucide="salad"></i> Healthy & Fitness
+          </button>
+        </div>
+      </section>
+
+      <!-- Menu Grid Area -->
+      <section class="menu-section">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="menu-heading">Today's Canteen Specials</h2>
+            <p class="section-caption" id="menu-caption">Freshly prepared in the campus central kitchen</p>
+          </div>
+          <span class="results-badge" id="menu-count-badge">Loading dishes...</span>
+        </div>
+
+        <!-- Dynamic Menu Cards Container -->
+        <div class="menu-grid" id="menu-grid">
+          <!-- Populated dynamically via script.js -->
+        </div>
+
+        <!-- Empty State Container -->
+        <div class="empty-state hidden" id="menu-empty-state">
+          <div class="empty-icon-wrap">
+            <i data-lucide="frown" class="empty-icon"></i>
+          </div>
+          <h3>No matching dishes found</h3>
+          <p>Try clearing your search keywords or dietary filters to view all canteen options.</p>
+          <button class="btn btn-primary" id="reset-filters-btn">
+            <i data-lucide="rotate-ccw"></i> Reset Filters
+          </button>
+        </div>
+      </section>
+
+    </section>
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- VIEW 2: LIVE DIGITAL TOKEN DISPLAY BOARD -->
+    <!-- --------------------------------------------------------------------- -->
+    <section class="tab-view" id="token-board-view">
+      <div class="board-header">
+        <div class="board-title-group">
+          <div class="board-live-pill">
+            <span class="pulsing-radar"></span>
+            LIVE KITCHEN DISPLAY
+          </div>
+          <h2 class="board-heading">Campus Pickup Token Board</h2>
+          <p class="board-subheading">Watch your order token transition from Kitchen Preparation to Counter Pickup in real-time.</p>
+        </div>
+        <div class="board-actions">
+          <button class="btn btn-outline" id="refresh-board-btn">
+            <i data-lucide="refresh-cw"></i> Refresh Board
+          </button>
+        </div>
+      </div>
+
+      <!-- High Visibility Dual Column Kiosk Display -->
+      <div class="token-board-grid">
+        
+        <!-- Column 1: Now Preparing -->
+        <div class="board-column column-preparing">
+          <div class="column-header">
+            <div class="col-title-wrap">
+              <i data-lucide="flame" class="col-icon"></i>
+              <h3>Now Preparing</h3>
+            </div>
+            <span class="col-count-badge" id="prep-count-badge">0</span>
+          </div>
+          <p class="col-desc">Chef is currently cooking these tokens in the kitchen</p>
+          
+          <div class="token-cards-list" id="preparing-tokens-list">
+            <!-- Dynamically injected -->
+          </div>
+        </div>
+
+        <!-- Column 2: Ready for Pickup -->
+        <div class="board-column column-ready">
+          <div class="column-header">
+            <div class="col-title-wrap">
+              <i data-lucide="bell-ring" class="col-icon"></i>
+              <h3>Ready For Pickup</h3>
+            </div>
+            <span class="col-count-badge ready-badge" id="ready-count-badge">0</span>
+          </div>
+          <p class="col-desc">Please present your token at the designated counter immediately</p>
+
+          <div class="token-cards-list" id="ready-tokens-list">
+            <!-- Dynamically injected -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- VIEW 3: TRACK ORDER BY TOKEN -->
+    <!-- --------------------------------------------------------------------- -->
+    <section class="tab-view" id="track-view">
+      <div class="tracker-wrapper">
+        <div class="tracker-card">
+          <div class="tracker-header">
+            <div class="tracker-icon-box">
+              <i data-lucide="radar"></i>
+            </div>
+            <h2>Track Your Canteen Order</h2>
+            <p>Enter your pickup token number (e.g. <strong>CAN-101</strong>) to view status, counter location, and cooking stage.</p>
+          </div>
+
+          <!-- Token Search Form -->
+          <form class="tracker-search-form" id="tracker-search-form">
+            <div class="tracker-input-group">
+              <input type="text" id="track-token-input" placeholder="e.g. CAN-101" required autocomplete="off">
+              <button type="submit" class="btn btn-primary" id="track-submit-btn">
+                <i data-lucide="search"></i> Check Status
+              </button>
+            </div>
+          </form>
+
+          <!-- Tracker Result Display -->
+          <div class="tracker-result-area" id="tracker-result-area">
+            <div class="tracker-placeholder" id="tracker-placeholder">
+              <i data-lucide="receipt"></i>
+              <p>Your order receipt and live status timeline will appear here.</p>
+            </div>
+
+            <!-- Dynamic Track Card -->
+            <div class="tracker-detail-card hidden" id="tracker-detail-card">
+              <!-- Rendered via script.js -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- VIEW 4: STAFF / CANTEEN ADMIN PORTAL -->
+    <!-- --------------------------------------------------------------------- -->
+    <section class="tab-view" id="admin-view">
+      <div class="admin-wrapper">
+        
+        <!-- Admin Header -->
+        <div class="admin-header">
+          <div>
+            <div class="admin-badge">
+              <i data-lucide="shield-check"></i> Canteen Staff Operations
+            </div>
+            <h2 class="admin-title">Canteen Management Dashboard</h2>
+            <p class="admin-subtitle">Manage live orders, advance kitchen status, and update menu prices & availability.</p>
+          </div>
+
+          <div class="admin-top-actions">
+            <button class="btn btn-primary" id="open-add-dish-btn">
+              <i data-lucide="plus-circle"></i> Add New Dish
+            </button>
+            <button class="btn btn-outline" id="admin-refresh-btn">
+              <i data-lucide="refresh-cw"></i> Refresh Data
+            </button>
+          </div>
+        </div>
+
+        <!-- Analytics Overview Cards -->
+        <div class="admin-stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon-wrap blue">
+              <i data-lucide="shopping-cart"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-total-orders">0</span>
+              <span class="stat-label">Total Orders Today</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap green">
+              <i data-lucide="indian-rupee"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-total-revenue">₹0</span>
+              <span class="stat-label">Total Revenue</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap amber">
+              <i data-lucide="clock"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-in-kitchen">0</span>
+              <span class="stat-label">In Kitchen (Prep)</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap emerald">
+              <i data-lucide="check-circle-2"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-ready-pickup">0</span>
+              <span class="stat-label">Ready For Counter</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staff Sub-Tabs -->
+        <div class="admin-tabs">
+          <button class="admin-tab-btn active" data-admin-tab="orders-panel" id="admin-tab-orders">
+            <i data-lucide="clipboard-list"></i> Incoming Orders (<span id="admin-orders-badge">0</span>)
+          </button>
+          <button class="admin-tab-btn" data-admin-tab="dishes-panel" id="admin-tab-dishes">
+            <i data-lucide="utensils"></i> Menu Items Catalog (<span id="admin-dishes-badge">0</span>)
+          </button>
+        </div>
+
+        <!-- Panel 1: Orders Queue Table -->
+        <div class="admin-panel active" id="orders-panel">
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3>Live Orders Stream</h3>
+              <div class="order-filter-pills">
+                <button class="pill-btn active" data-status-filter="all">All</button>
+                <button class="pill-btn" data-status-filter="Pending">Pending</button>
+                <button class="pill-btn" data-status-filter="Preparing">Preparing</button>
+                <button class="pill-btn" data-status-filter="Ready">Ready</button>
+                <button class="pill-btn" data-status-filter="Completed">Completed</button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table" id="admin-orders-table">
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>Student Details</th>
+                    <th>Counter</th>
+                    <th>Ordered Items</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-orders-tbody">
+                  <!-- Rendered via script.js -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="empty-state hidden" id="admin-orders-empty">
+              <i data-lucide="check-check" class="empty-icon"></i>
+              <p>No orders currently match the selected filter.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Menu Catalog Management -->
+        <div class="admin-panel" id="dishes-panel">
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3>Canteen Menu Management</h3>
+              <p>Toggle availability when ingredients run out or edit prices instantly.</p>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table" id="admin-menu-table">
+                <thead>
+                  <tr>
+                    <th>Dish</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Prep Time</th>
+                    <th>Stock Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-menu-tbody">
+                  <!-- Rendered via script.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- SLIDING CART DRAWER (FOOD TRAY) -->
+  <!-- ========================================================================= -->
+  <div class="cart-backdrop" id="cart-backdrop"></div>
+  <aside class="cart-drawer" id="cart-drawer">
+    
+    <!-- Drawer Header -->
+    <div class="drawer-header">
+      <div class="drawer-title-wrap">
+        <i data-lucide="shopping-bag"></i>
+        <h3>Your Food Tray</h3>
+        <span class="drawer-count-badge" id="drawer-item-count">0 items</span>
+      </div>
+      <button class="close-drawer-btn" id="close-cart-btn" aria-label="Close Tray">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <!-- Scrollable Items List -->
+    <div class="cart-items-container" id="cart-items-container">
+      <!-- Injected via script.js -->
+    </div>
+
+    <!-- Empty Cart Notification -->
+    <div class="cart-empty-state hidden" id="cart-empty-state">
+      <div class="cart-empty-icon">
+        <i data-lucide="utensils"></i>
+      </div>
+      <h4>Your food tray is empty</h4>
+      <p>Browse our hot snacks, thalis, and beverages to add items.</p>
+      <button class="btn btn-primary" id="cart-browse-btn">Explore Menu</button>
+    </div>
+
+    <!-- Cart Summary & Checkout Form -->
+    <div class="cart-checkout-section" id="cart-checkout-section">
+      
+      <!-- Cost Breakdown -->
+      <div class="cart-summary-box">
+        <div class="summary-line">
+          <span>Subtotal</span>
+          <span id="summary-subtotal">₹0.00</span>
+        </div>
+        <div class="summary-line">
+          <span>Campus Subsidy / Pack fee</span>
+          <span class="free-tag">FREE (₹0.00)</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-line total-line">
+          <span>Total Payable</span>
+          <span id="summary-total">₹0.00</span>
+        </div>
+      </div>
+
+      <!-- Student Order Form -->
+      <form class="checkout-form" id="checkout-form">
+        <h4 class="form-title"><i data-lucide="user-check"></i> Student Pickup Details</h4>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="student-name-input">Full Name *</label>
+            <input type="text" id="student-name-input" placeholder="e.g. Rahul Sharma" required>
+          </div>
+          <div class="form-group">
+            <label for="student-id-input">Student / Roll ID *</label>
+            <input type="text" id="student-id-input" placeholder="e.g. CS2024-042" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="student-phone-input">Phone Number *</label>
+            <input type="tel" id="student-phone-input" placeholder="e.g. 9876543210" required>
+          </div>
+          <div class="form-group">
+            <label for="pickup-counter-select">Pickup Counter</label>
+            <select id="pickup-counter-select">
+              <option value="Counter 1 (Main Hall)">Counter 1 (Main Hall)</option>
+              <option value="Counter 2 (Express Snacks)">Counter 2 (Express Snacks)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="order-notes-input">Cooking Instructions / Requests (Optional)</label>
+          <input type="text" id="order-notes-input" placeholder="e.g. Less spicy, pack separately">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-block checkout-submit-btn" id="confirm-order-btn">
+          <span class="btn-text">
+            <i data-lucide="check-circle"></i> Place Order & Get Token
+          </span>
+          <span class="btn-spinner hidden">
+            <i data-lucide="loader-2" class="spin-icon"></i> Processing...
+          </span>
+        </button>
+      </form>
+
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ORDER SUCCESS & TOKEN RECEIPT -->
+  <!-- ========================================================================= -->
+  <div class="modal-backdrop" id="success-modal-backdrop">
+    <div class="modal-dialog success-dialog">
+      <div class="success-icon-badge">
+        <i data-lucide="check"></i>
+      </div>
+      <h2 class="modal-title">Order Placed Successfully!</h2>
+      <p class="modal-subtitle">Your order has been sent to the canteen kitchen.</p>
+
+      <!-- Token Highlight Display -->
+      <div class="token-receipt-box">
+        <span class="token-receipt-label">YOUR PICKUP TOKEN</span>
+        <div class="token-receipt-number" id="receipt-token-number">CAN-100</div>
+        <div class="token-receipt-counter" id="receipt-counter">Pickup at: Counter 1</div>
+        <div class="token-receipt-time" id="receipt-est-time">Est. Ready in: ~10 mins</div>
+      </div>
+
+      <div class="receipt-student-info" id="receipt-student-info">
+        <!-- Rendered via script.js -->
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="track-this-order-btn">
+          <i data-lucide="radar"></i> Track Live Status
+        </button>
+        <button class="btn btn-outline" id="close-success-modal-btn">
+          Back to Menu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ADD / EDIT MENU ITEM (ADMIN) -->
+  <!-- ========================================================================= -->
+  <div class="modal-backdrop" id="dish-modal-backdrop">
+    <div class="modal-dialog dish-dialog">
+      <div class="dialog-header">
+        <h3 id="dish-modal-title">Add New Canteen Dish</h3>
+        <button class="close-modal-btn" id="close-dish-modal-btn">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <form id="dish-form" class="dish-form">
+        <input type="hidden" id="dish-id-hidden">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dish-name-input">Dish Name *</label>
+            <input type="text" id="dish-name-input" placeholder="e.g. Paneer Tikka Roll" required>
+          </div>
+          <div class="form-group">
+            <label for="dish-category-select">Category *</label>
+            <select id="dish-category-select" required>
+              <option value="Breakfast">Breakfast</option>
+              <option value="Meals">Meals</option>
+              <option value="Snacks">Snacks</option>
+              <option value="Beverages">Beverages</option>
+              <option value="Healthy">Healthy</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dish-price-input">Price (₹) *</label>
+            <input type="number" id="dish-price-input" step="0.5" min="0" placeholder="e.g. 60" required>
+          </div>
+          <div class="form-group">
+            <label for="dish-prep-input">Prep Time (Mins)</label>
+            <input type="number" id="dish-prep-input" min="1" max="60" value="10">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="dish-desc-input">Description</label>
+          <textarea id="dish-desc-input" rows="2" placeholder="Briefly describe taste, ingredients or portion size"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="dish-image-input">Image URL</label>
+          <input type="url" id="dish-image-input" placeholder="https://images.unsplash.com/...">
+        </div>
+
+        <div class="form-row form-checkbox-row">
+          <label class="custom-checkbox">
+            <input type="checkbox" id="dish-isveg-check" checked>
+            <span class="checkmark"></span>
+            Pure Vegetarian (🌱)
+          </label>
+          <label class="custom-checkbox">
+            <input type="checkbox" id="dish-isavail-check" checked>
+            <span class="checkmark"></span>
+            Available in Stock
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary" id="save-dish-btn">
+            <i data-lucide="save"></i> Save Dish
+          </button>
+          <button type="button" class="btn btn-outline" id="cancel-dish-btn">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <!-- ========================================================================= -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="brand-logo footer-logo">
+          <div class="brand-icon-wrap">
+            <i data-lucide="utensils" class="brand-icon"></i>
+          </div>
+          <span class="brand-name">Campus<span class="brand-accent">Bite</span></span>
+        </div>
+        <p class="footer-desc">Smart full-stack canteen management system with Supabase PostgreSQL, Express.js REST API, and real-time live kitchen tokens.</p>
+      </div>
+      <div class="footer-meta">
+        <p>&copy; 2026 Campus Smart Canteen. Built for College Students & Faculty.</p>
+        <p class="footer-tags">Status: <span class="badge-tag">PostgreSQL Ready</span> &bull; <span class="badge-tag">WebSocket Enabled</span></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Script -->
+  <script src="script.js"></script>
+</body>
+</html>
